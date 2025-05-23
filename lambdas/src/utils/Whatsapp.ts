@@ -1,3 +1,4 @@
+import chromium from 'chrome-aws-lambda';
 import 'dotenv/config';
 import { promises as fsp } from 'fs';
 import path from 'path';
@@ -51,7 +52,13 @@ export async function sendWhatsappMessage(groupId: string, message: string): Pro
     console.log('Syncing Whatsapp auth..');
     await syncWhatsappFromS3();
     const client = new Client({
-        authStrategy: new LocalAuth({ dataPath: AUTH_DIR })
+        authStrategy: new LocalAuth({ dataPath: AUTH_DIR }),
+        puppeteer: {
+            args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath,
+            headless: chromium.headless,
+        }
     });
 
     return new Promise((resolve, reject) => {
