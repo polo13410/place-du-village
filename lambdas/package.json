@@ -4,7 +4,8 @@
   "main": "dist/index.js",
   "scripts": {
     "start:generate": "ts-node src/local.ts generate",
-    "start:send": "ts-node src/local.ts send"
+    "start:send": "ts-node src/local.ts send",
+    "build": "sam build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.816.0",

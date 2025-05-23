@@ -35,5 +35,5 @@ jobs:
     uses: ./.github/workflows/lambdas.yml
     with:
       environment: ${{ github.event.inputs.environment || 'staging' }}
-      directory: ./
+      directory: ./lambdas
     secrets: inherit

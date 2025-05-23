@@ -1,5 +1,5 @@
-import { handler as generateMessagesHandler } from "./lambdas/generateMessages";
-import { handler as sendDailyHandler } from "./lambdas/sendDaily";
+import { handler as generateMessagesHandler } from "./handlers/generateMessages";
+import { handler as sendDailyHandler } from "./handlers/sendDaily";
 
 async function main() {
     const arg = process.argv[2];
