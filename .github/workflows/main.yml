@@ -1,0 +1,38 @@
+name: Main - Deploy Infrastructure and Lambdas
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Which environment to deploy to"
+        required: true
+        default: staging
+        type: choice
+        options:
+          - staging
+          - preprod
+          - prod
+
+jobs:
+  Infrastructure:
+    uses: ./.github/workflows/infrastructure.yml
+    with:
+      environment: ${{ github.event.inputs.environment || 'staging' }}
+      directory: ./infrastructure
+      state_bucket_name: ${{ vars.TF_STATE_BUCKET }}
+      state_key: ${{ github.event.inputs.environment || 'staging' }}-${{ vars.TF_STATE_KEY }}
+      apply_changes: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    secrets: inherit
+
+  # Lambdas:
+  #   needs: Infrastructure
+  #   uses: ./.github/workflows/lambdas.yml
+  #   with:
+  #     environment: ${{ github.event.inputs.environment || 'staging' }}
+  #     directory: ./lambdas
+  #   secrets: inherit

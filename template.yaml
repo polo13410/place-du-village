@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Place du Village - WhatsApp and OpenAI Lambdas
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: nodejs18.x
+    MemorySize: 256
+    Environment:
+      Variables:
+        BUCKET_NAME: !Ref MessageBucket
+        S3_BUCKET_MESSAGES: !Ref MessageBucket
+        AWS_REGION: !Ref AWS::Region
+
+Resources:
+  GenerateMessagesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/lambdas/generateMessages.handler
+      CodeUri: .
+      Policies:
+      - S3CrudPolicy:
+          BucketName: !Ref MessageBucket
+      Environment:
+        Variables:
+          OPENAI_API_KEY: "{{resolve:secretsmanager:openai-api-key}}"
+      Events:
+        GenerateMessagesSchedule:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 day)
+
+  SendDailyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/lambdas/sendDaily.handler
+      CodeUri: .
+      Policies:
+      - S3CrudPolicy:
+          BucketName: !Ref MessageBucket
+      Environment:
+        Variables:
+          WHATSAPP_GROUP_ID: "{{resolve:secretsmanager:whatsapp-group-id}}"
+      Events:
+        SendDailySchedule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 9 * * ? *)
+
+  MessageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: place-du-village-messages-${AWS::AccountId}
+
+Outputs:
+  GenerateMessagesFunction:
+    Description: "ARN of the GenerateMessages Lambda function"
+    Value: !GetAtt GenerateMessagesFunction.Arn
+  SendDailyFunction:
+    Description: "ARN of the SendDaily Lambda function"
+    Value: !GetAtt SendDailyFunction.Arn
+  MessageBucket:
+    Description: "S3 bucket for messages"
+    Value: !Ref MessageBucket
