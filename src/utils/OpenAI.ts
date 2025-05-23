@@ -6,10 +6,13 @@ const openai = new OpenAI({
 });
 
 export async function generateMessages(prompt: string): Promise<string> {
+    console.log('Generating messages with OpenAI..');
     const response = await openai.chat.completions.create({
         model: 'gpt-4.1-mini',
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: 200,
+        max_tokens: 1000,
     });
-    return response.choices[0]?.message?.content || '';
+    const content = response.choices[0]?.message?.content
+    if (!content) throw new Error('No content in OpenAI response');
+    return content;
 }

@@ -9,23 +9,25 @@ Exemple : Oyez, oyez, bonnes gens du bourg et des masures voisines ! Troubadour 
 Réponds uniquement par une liste numérotée.`;
 
 export const handler = async () => {
+    console.log('Starting message generation process..');
     const response = await generateMessages(PROMPT);
-    console.log('Response from OpenAI:', response);
     const messages = response.split(/\n\s*\d+\.\s/).filter(Boolean);
 
     if (messages[0] && /^\d+\./.test(messages[0])) {
         messages[0] = messages[0].replace(/^\d+\.\s*/, '');
     }
 
+    console.log('Uploading messages to S3..');
     const uploads = await Promise.all(messages.map(async (msg) => {
         const key = `daily-message-${uuidv4()}`;
         await uploadObject(
             S3_BUCKET_MESSAGES,
             key,
             '',
-            { 'x-amz-meta-message': msg }
+            { 'x-amz-meta-message': encodeURIComponent(msg) }
         );
         return key;
     }));
+    console.log('Process completed successfully, messages uploaded:', uploads);
     return { statusCode: 200, body: JSON.stringify({ uploaded: uploads }) };
 };
