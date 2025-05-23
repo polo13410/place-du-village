@@ -1,65 +1,75 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
-Description: Place du Village - WhatsApp and OpenAI Lambdas
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Place du village
+Transform:
+- AWS::Serverless-2016-10-31
+
+Parameters:
+  LambdaRoleName:
+    Type: String
+  Stage:
+    Type: String
+  S3MessagesBucket:
+    Type: String
+  WhatsappGroupId:
+    Type: String
+  OpenAiApiKey:
+    Type: String
 
 Globals:
   Function:
-    Timeout: 30
-    Runtime: nodejs18.x
+    Runtime: nodejs22.x
     MemorySize: 256
+    Timeout: 30
+    Architectures:
+    - x86_64
+    Tracing: Active
+    LoggingConfig:
+      LogFormat: JSON
     Environment:
       Variables:
-        BUCKET_NAME: !Ref MessageBucket
-        S3_BUCKET_MESSAGES: !Ref MessageBucket
-        AWS_REGION: !Ref AWS::Region
+        STAGE: !Ref Stage
+        S3_MESSAGES_BUCKET: !Ref S3MessagesBucket
+        WHATSAPP_GROUP_ID: !Ref WhatsappGroupId
+        OPENAI_API_KEY: !Ref OpenAiApiKey
+
+  Api:
+    TracingEnabled: true
 
 Resources:
-  GenerateMessagesFunction:
+  SendDaily:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/lambdas/generateMessages.handler
-      CodeUri: .
-      Policies:
-      - S3CrudPolicy:
-          BucketName: !Ref MessageBucket
-      Environment:
-        Variables:
-          OPENAI_API_KEY: "{{resolve:secretsmanager:openai-api-key}}"
+      Runtime: nodejs22.x
+      CodeUri: src/lambdas/sendDaily
+      Handler: sendDaily.handler
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/${LambdaRoleName}"
       Events:
-        GenerateMessagesSchedule:
+        CloudWatchEvent:
           Type: Schedule
           Properties:
-            Schedule: rate(1 day)
-
-  SendDailyFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: src/lambdas/sendDaily.handler
-      CodeUri: .
-      Policies:
-      - S3CrudPolicy:
-          BucketName: !Ref MessageBucket
-      Environment:
-        Variables:
-          WHATSAPP_GROUP_ID: "{{resolve:secretsmanager:whatsapp-group-id}}"
-      Events:
-        SendDailySchedule:
-          Type: Schedule
-          Properties:
+            Enabled: true
             Schedule: cron(0 9 * * ? *)
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "ES2022"
+        Sourcemap: true
+        EntryPoints:
+        - sendDaily.ts
 
-  MessageBucket:
-    Type: AWS::S3::Bucket
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
     Properties:
-      BucketName: place-du-village-messages-${AWS::AccountId}
+      Name:
+        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
 
-Outputs:
-  GenerateMessagesFunction:
-    Description: "ARN of the GenerateMessages Lambda function"
-    Value: !GetAtt GenerateMessagesFunction.Arn
-  SendDailyFunction:
-    Description: "ARN of the SendDaily Lambda function"
-    Value: !GetAtt SendDailyFunction.Arn
-  MessageBucket:
-    Description: "S3 bucket for messages"
-    Value: !Ref MessageBucket
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName:
+        Ref: ApplicationResourceGroup
+      AutoConfigurationEnabled: true

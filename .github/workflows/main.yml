@@ -29,10 +29,10 @@ jobs:
       apply_changes: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     secrets: inherit
 
-  # Lambdas:
-  #   needs: Infrastructure
-  #   uses: ./.github/workflows/lambdas.yml
-  #   with:
-  #     environment: ${{ github.event.inputs.environment || 'staging' }}
-  #     directory: ./lambdas
-  #   secrets: inherit
+  Lambdas:
+    needs: Infrastructure
+    uses: ./.github/workflows/lambdas.yml
+    with:
+      environment: ${{ github.event.inputs.environment || 'staging' }}
+      directory: ./lambdas
+    secrets: inherit

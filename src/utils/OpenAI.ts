@@ -1,8 +1,9 @@
 import 'dotenv/config';
 import OpenAI from 'openai';
+import { env } from './config';
 
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: env.OPENAI_API_KEY,
 });
 
 export async function generateMessages(prompt: string): Promise<string> {

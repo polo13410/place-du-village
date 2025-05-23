@@ -1,9 +1,10 @@
 import 'dotenv/config';
 import { headObject, listObjects, moveObject } from '../utils/S3';
 import { sendWhatsappMessage } from '../utils/Whatsapp';
+import { env } from '../utils/config';
 
-const S3_BUCKET_MESSAGES = process.env.S3_BUCKET_MESSAGES!;
-const WHATSAPP_GROUP_ID = process.env.WHATSAPP_GROUP_ID!;
+const S3_BUCKET_MESSAGES = env.S3_BUCKET_MESSAGES!;
+const WHATSAPP_GROUP_ID = env.WHATSAPP_GROUP_ID!;
 
 export const handler = async () => {
     console.log('Starting daily message process..');

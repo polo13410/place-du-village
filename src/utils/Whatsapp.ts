@@ -4,13 +4,14 @@ import path from 'path';
 import { Client, LocalAuth } from 'whatsapp-web.js';
 import { getObject, uploadObject } from './S3';
 import { createZipFromFolder, deleteFolderIfExists, extractZip } from './ZipUtils';
+import { env } from './config';
 
 const ROOT = "./"
 const AUTH_DIR = '.wwebjs_auth';
 const CACHE_DIR = '.wwebjs_cache';
 const folders = [AUTH_DIR, CACHE_DIR];
 const zipFiles = folders.map(folder => `${folder}.zip`);
-const BUCKET = process.env.S3_BUCKET_MESSAGES!;
+const BUCKET = env.S3_BUCKET_MESSAGES!;
 const WHATSAPP_PREFIX = 'whatsapp/';
 
 async function syncWhatsappFromS3() {

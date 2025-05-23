@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { generateMessages } from '../utils/OpenAI';
 import { uploadObject } from '../utils/S3';
 
-const S3_BUCKET_MESSAGES = process.env.S3_BUCKET_MESSAGES!;
+const S3_BUCKET_MESSAGES = config.env.S3_BUCKET_MESSAGES!;
 const PROMPT = `Peux tu faire une liste de 10 faux titres de vidéo porno sur un site x mais comme si le site existait à l'époque médiévale en utilisant un lexique cru, avec une annonce publique sur la place du village. 
 Exemple : Oyez, oyez, bonnes gens du bourg et des masures voisines ! Troubadour pourfend le fourreau de la mécréante du village!
 Réponds uniquement par une liste numérotée.`;

@@ -1,8 +1,9 @@
 import { CopyObjectCommand, DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import "dotenv/config";
+import { env } from './config';
 
-const s3 = new S3Client({ region: process.env.AWS_REGION || 'eu-west-1' });
+const s3 = new S3Client({ region: env.AWS_REGION || 'eu-west-1' });
 
 export async function uploadObject(bucket: string, key: string, body: string | Buffer, metadata?: Record<string, string>) {
     // Use Upload for streams or unknown length, fallback to PutObject for string/Buffer
