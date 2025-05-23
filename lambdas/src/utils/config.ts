@@ -1,4 +1,5 @@
 import "dotenv/config";
+
 export const env = {
     AWS_REGION: process.env.AWS_REGION || 'eu-west-1',
     STAGE: process.env.STAGE!,

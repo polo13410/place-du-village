@@ -4,28 +4,31 @@
   "main": "dist/index.js",
   "scripts": {
     "start:generate": "ts-node src/local.ts generate",
+    "generate": "sam build && sam local start-api --env-vars env.json --skip-pull-image",
+    "send": "sam build && sam local invoke dailySend --env-vars env.json",
     "start:send": "ts-node src/local.ts send",
     "build": "sam build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.816.0",
-    "@aws-sdk/lib-storage": "^3.816.0",
+    "@aws-sdk/lib-storage": "3.816.0",
     "@types/qrcode-terminal": "0.12.2",
-    "adm-zip": "^0.5.16",
+    "adm-zip": "0.5.16",
     "dotenv": "16.5.0",
     "openai": "4.103.0",
     "qrcode-terminal": "0.12.0",
     "uuid": "11.1.0",
     "whatsapp-web.js": "1.28.0",
-    "yauzl": "^3.2.0",
-    "yazl": "^3.3.1"
+    "yauzl": "3.2.0",
+    "yazl": "3.3.1"
   },
   "devDependencies": {
-    "@types/adm-zip": "^0.5.7",
+    "@types/adm-zip": "0.5.7",
     "@types/aws-sdk": "2.7.4",
     "@types/node": "22.15.21",
     "@types/uuid": "10.0.0",
-    "@types/yazl": "^3.3.0",
+    "@types/yazl": "3.3.0",
+    "esbuild": "0.25.4",
     "ts-node": "10.9.2",
     "typescript": "5.8.3"
   }

@@ -41,8 +41,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Runtime: nodejs22.x
-      CodeUri: src/handlers/sendDaily
-      Handler: sendDaily.handler
+      CodeUri: .
+      Handler: src/handlers/sendDaily.handler
       Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/${LambdaRoleName}"
       Events:
         CloudWatchEvent:
@@ -57,7 +57,9 @@ Resources:
         Target: "ES2022"
         Sourcemap: true
         EntryPoints:
-        - sendDaily.ts
+        - src/handlers/sendDaily.ts
+        External:
+        - fluent-ffmpeg
 
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group
