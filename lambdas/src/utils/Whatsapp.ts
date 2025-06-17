@@ -1,4 +1,4 @@
-import chromium from 'chrome-aws-lambda';
+import chromium from '@sparticuz/chromium';
 import 'dotenv/config';
 import { promises as fsp } from 'fs';
 import path from 'path';
@@ -56,7 +56,7 @@ export async function sendWhatsappMessage(groupId: string, message: string): Pro
         puppeteer: {
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath,
+            executablePath: await chromium.executablePath(),
             headless: chromium.headless,
         }
     });
