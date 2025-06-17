@@ -1,4 +1,4 @@
-import chromium from 'chrome-aws-lambda';
+import chromium from '@sparticuz/chromium';
 import 'dotenv/config';
 import { promises as fsp } from 'fs';
 import path from 'path';
@@ -56,18 +56,26 @@ export async function sendWhatsappMessage(groupId: string, message: string): Pro
         puppeteer: {
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath,
+            executablePath: await chromium.executablePath(),
             headless: chromium.headless,
         }
     });
 
     return new Promise((resolve, reject) => {
+        // Set a timeout for the entire operation
+        const timeout = setTimeout(() => {
+            client.destroy().catch(console.error);
+            reject(new Error('WhatsApp client initialization timeout'));
+        }, 240000); // 4 minutes timeout
+
         client.on('ready', async () => {
+            clearTimeout(timeout);
             try {
                 console.log('Sending message to group..');
                 const response = await client.sendMessage(groupId, message);
                 resolve(response);
             } catch (error) {
+                console.error('Error sending message:', error);
                 reject(error);
             } finally {
                 await new Promise(res => setTimeout(res, 2000));
@@ -77,7 +85,29 @@ export async function sendWhatsappMessage(groupId: string, message: string): Pro
                 await syncWhatsappToS3();
             }
         });
-        client.on('qr', () => { });
-        client.initialize();
+
+        client.on('qr', () => { 
+            console.log('QR code generated - client needs to be authenticated first');
+        });
+
+        client.on('auth_failure', (msg) => {
+            clearTimeout(timeout);
+            console.error('Authentication failure:', msg);
+            reject(new Error('WhatsApp authentication failure: ' + msg));
+        });
+
+        client.on('disconnected', (reason) => {
+            clearTimeout(timeout);
+            console.error('Client disconnected:', reason);
+            reject(new Error('WhatsApp client disconnected: ' + reason));
+        });
+
+        try {
+            client.initialize();
+        } catch (error) {
+            clearTimeout(timeout);
+            console.error('Error initializing client:', error);
+            reject(error);
+        }
     });
 }
