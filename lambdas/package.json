@@ -35,7 +35,6 @@
     "@types/node": "22.15.21",
     "@types/uuid": "10.0.0",
     "@types/yazl": "3.3.0",
-    "@sparticuz/chromium": "131.0.1",
     "esbuild": "0.25.4",
     "ts-node": "10.9.2",
     "typescript": "5.8.3"

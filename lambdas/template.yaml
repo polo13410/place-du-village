@@ -19,8 +19,8 @@ Parameters:
 Globals:
   Function:
     Runtime: nodejs22.x
-    MemorySize: 256
-    Timeout: 30
+    MemorySize: 512
+    Timeout: 300
     Architectures:
     - x86_64
     Tracing: Active
@@ -60,6 +60,7 @@ Resources:
         - src/handlers/sendDaily.ts
         External:
         - fluent-ffmpeg
+        - "@sparticuz/chromium"
 
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group
